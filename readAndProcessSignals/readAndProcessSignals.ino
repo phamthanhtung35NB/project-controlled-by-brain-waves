@@ -1,20 +1,17 @@
-////////////////////////////////////////////////////////////////////////
-// Arduino Bluetooth Interface with Mindwave
-//
-// This is example code provided by NeuroSky, Inc. and is provided
-// license free.
-//
-// This modification allows view data trough serial monitor
-// Lozano Ramirez Angel Ivan
-// Mexico  2.07.2021
-////////////////////////////////////////////////////////////////////////
-
 #include <SoftwareSerial.h>
+
 SoftwareSerial BT(11, 10); // Rx/Tx
 
 #define LED 13
 #define BAUDRATE 57600
 #define DEBUGOUTPUT 0
+
+#define threshold 50  // ngưỡng
+#define regimeMAX 5   // chức năng tối đa
+#define waiting 10000 // thời gian chờ
+int select = 0;       // lựa chọn
+
+unsigned long;
 
 // checksum variables
 byte generatedChecksum = 0;
@@ -25,17 +22,10 @@ byte poorQuality = 0;
 byte attention = 0;
 byte meditation = 0;
 
-int select = 0;
-
-unsigned long;
-
 // system variables
 long lastReceivedPacket = 0;
 boolean bigPacket = false;
 
-//////////////////////////
-// Microprocessor Setup //
-//////////////////////////
 void setup()
 {
   pinMode(LED, OUTPUT);
@@ -44,15 +34,68 @@ void setup()
 }
 void loop()
 {
-  int attentionLevel = check();
+  if (checkThreshold() >= threshold)
+  {
+    functionSelection(); // chọn chế độ
+    enforceTheRegime();  // thực thi chế độ
+  }
+  else
+  {
+    Serial.print("Wait");
+  }
+}
+/**
+ * chạy chế độ đã chọn
+ */
+void enforceTheRegime()
+{
+  switch (select)
+  {
+  case 1:
+    Serial.print("Regime: " + select);
+    break;
+  case 2:
+    Serial.print("Regime: " + select);
+    break;
+  case 3:
+    Serial.print("Regime: " + select);
+    break;
+  case 4:
+    Serial.print("Regime: " + select);
+    break;
+  case 5:
+    Serial.print("Regime: " + select);
+    break;
+  default:
+    Serial.print("Wait");
+    break;
+  }
 }
 
 /**
- * 
-*/
+ * return _ Lựa chọn chế độ
+ */
 int functionSelection()
 {
+  unsigned long waitingTime = millis();
+  while (millis() - waitingTime > waiting)
+  {
+    viewShow();
+    if (checkThreshold() >= threshold)
+    {
+      select++;
+      waitingTime = millis();
+    }
+    else
+    {
+      Serial.println(millis() - waitingTime + "S");
+    }
 
+    if (select > regimeMAX)
+    {
+      select = 0;
+    }
+  }
   return select;
 }
 
@@ -61,6 +104,7 @@ int functionSelection()
  */
 void viewShow()
 {
+  Serial.println(select);
 }
 
 /**
@@ -84,7 +128,7 @@ byte ReadOneByte()
 /**
  * return _ mức độ tập trung
  */
-int check()
+int checkThreshold()
 {
   // Tìm kiếm các byte đồng bộ
   if (ReadOneByte() == 170)
