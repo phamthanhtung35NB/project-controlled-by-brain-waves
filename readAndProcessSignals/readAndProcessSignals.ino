@@ -1,15 +1,21 @@
 #include <SoftwareSerial.h>
 
 SoftwareSerial BT(11, 10); // Rx/Tx
-
+/**
+ * commet dòng 104 mở commet dòng 103
+ * commet dòng 51 mở commet dòng 50
+ */
 #define LED 13
 #define BAUDRATE 57600
 #define DEBUGOUTPUT 0
-
-#define threshold 50  // ngưỡng
-#define regimeMAX 5   // chức năng tối đa
-#define waiting 10000 // thời gian chờ
-int select = 0;       // lựa chọn
+#define cN1 31
+#define cN2 33
+#define cN3 35
+#define button 8
+#define threshold 50 // ngưỡng
+#define regimeMAX 3  // chức năng tối đa
+#define waiting 5000 // thời gian chờ
+int select = 0;      // lựa chọn
 
 unsigned long;
 
@@ -29,20 +35,33 @@ boolean bigPacket = false;
 void setup()
 {
   pinMode(LED, OUTPUT);
+  pinMode(cN1, OUTPUT);
+  pinMode(cN2, OUTPUT);
+  pinMode(cN3, OUTPUT);
+  digitalWrite(cN1, 1);
+  digitalWrite(cN2, 1);
+  digitalWrite(cN3, 1);
+  pinMode(button, INPUT);
   BT.begin(BAUDRATE);     // Software serial port  (ATMEGA328P)
   Serial.begin(BAUDRATE); // USB
 }
 void loop()
 {
-  if (checkThreshold() >= threshold)
+  // if (checkThreshold() >= threshold)
+  if (digitalRead(button) == 1)
   {
+    Serial.print("vao roi ");
     functionSelection(); // chọn chế độ
-    enforceTheRegime();  // thực thi chế độ
+
+    // enforceTheRegime();  // thực thi chế độ
   }
   else
   {
-    Serial.print("Wait");
+    Serial.print("Chay che do : ");
+    viewShow();
   }
+  Serial.println("_");
+  delay(500);
 }
 /**
  * chạy chế độ đã chọn
@@ -75,28 +94,34 @@ void enforceTheRegime()
 /**
  * return _ Lựa chọn chế độ
  */
-int functionSelection()
+void functionSelection()
 {
   unsigned long waitingTime = millis();
-  while (millis() - waitingTime > waiting)
+  while (millis() - waitingTime < waiting)
   {
-    viewShow();
-    if (checkThreshold() >= threshold)
+
+    // if (checkThreshold() >= threshold)
+    if (digitalRead(button) == 1)
     {
+      Serial.println(digitalRead(button));
+      Serial.println(select);
       select++;
+      if (select > regimeMAX)
+      {
+        select = 0;
+      }
       waitingTime = millis();
+      delay(1000);
     }
     else
     {
-      Serial.println(millis() - waitingTime + "S");
+      Serial.print(millis() - waitingTime);
+      Serial.println("S");
     }
-
-    if (select > regimeMAX)
-    {
-      select = 0;
-    }
+    Serial.print("select ");
+    Serial.println(select);
+    delay(500);
   }
-  return select;
 }
 
 /**
@@ -105,6 +130,30 @@ int functionSelection()
 void viewShow()
 {
   Serial.println(select);
+  if (select == 1)
+  {
+    digitalWrite(cN1, 0);
+    digitalWrite(cN2, 1);
+    digitalWrite(cN3, 1);
+  }
+  else if (select == 2)
+  {
+    digitalWrite(cN1, 1);
+    digitalWrite(cN2, 0);
+    digitalWrite(cN3, 1);
+  }
+  else if (select == 3)
+  {
+    digitalWrite(cN1, 1);
+    digitalWrite(cN2, 1);
+    digitalWrite(cN3, 0);
+  }
+  else if (select == 0)
+    digitalWrite(cN1, 1);
+  digitalWrite(cN2, 1);
+  digitalWrite(cN3, 1);
+  {
+  }
 }
 
 /**
