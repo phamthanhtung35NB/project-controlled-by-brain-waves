@@ -1,21 +1,47 @@
+/**
+ *
+ * https://github.com/phamthanhtung35NB/project-controlled-by-brain-waves
+ *
+ */
 #include <SoftwareSerial.h>
 
 SoftwareSerial BT(11, 10); // Rx/Tx
-/**
- * COMMENT dòng 104 mở COMMENT  dòng 103
- * COMMENT  dòng 51 mở COMMENT  dòng 50
- */
+
 #define LED 13
 #define BAUDRATE 57600
 #define DEBUGOUTPUT 0
-#define cN1 31
-#define cN2 33
-#define cN3 35
+
+// Chân cắm nút test
 #define button 8
-#define threshold 50 // ngưỡng
-#define regimeMAX 3  // chức năng tối đa
-#define waiting 5000 // thời gian chờ
-int select = 0;      // lựa chọn
+
+///////////////////////////////////////////////////////
+/**
+ * Ngưỡng của sóng não để chuyển chế độ.
+ */
+#define threshold 50
+///////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////
+/**
+ * Số chức năng tối đa.
+ */
+#define regimeMAX 3
+///////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////
+/**
+ * Thời gian chờ để chọn chế độ.
+ */
+#define waiting 5000 // = 5s
+///////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////
+/**
+ * Chế độ 0 là không dùng chế độ nào
+ * (KHÔNG thay đổi biến select này)
+ */
+int select = 0;
+///////////////////////////////////////////////////////
 
 unsigned long;
 
@@ -35,130 +61,91 @@ boolean bigPacket = false;
 void setup()
 {
   pinMode(LED, OUTPUT);
-  pinMode(cN1, OUTPUT);
-  pinMode(cN2, OUTPUT);
-  pinMode(cN3, OUTPUT);
-  digitalWrite(cN1, 1);
-  digitalWrite(cN2, 1);
-  digitalWrite(cN3, 1);
   pinMode(button, INPUT);
   BT.begin(BAUDRATE);     // Software serial port  (ATMEGA328P)
   Serial.begin(BAUDRATE); // USB
 }
 void loop()
 {
+  //*******************************************************************
   // if (checkThreshold() >= threshold)
   if (digitalRead(button) == 1)
   {
-    Serial.print("vao roi ");
-    functionSelection(); // chọn chế độ
-
-    // enforceTheRegime();  // thực thi chế độ
+    Serial.println("Vào rồi ");
+    // chọn chế độ
+    functionSelection();
+    Serial.println("Húp.................");
   }
   else
   {
-    Serial.print("Chay che do : ");
     viewShow();
   }
   Serial.println("_");
-  delay(500);
-}
-/**
- * chạy chế độ đã chọn
- */
-void enforceTheRegime()
-{
-  switch (select)
-  {
-  case 1:
-    Serial.print("Regime: " + select);
-    break;
-  case 2:
-    Serial.print("Regime: " + select);
-    break;
-  case 3:
-    Serial.print("Regime: " + select);
-    break;
-  case 4:
-    Serial.print("Regime: " + select);
-    break;
-  case 5:
-    Serial.print("Regime: " + select);
-    break;
-  default:
-    Serial.print("Wait");
-    break;
-  }
+  delay(500); // test
 }
 
 /**
- * return _ Lựa chọn chế độ
+ * Lựa chọn chế độ.
  */
 void functionSelection()
 {
   unsigned long waitingTime = millis();
   while (millis() - waitingTime < waiting)
   {
-
+    //*******************************************************************
     // if (checkThreshold() >= threshold)
     if (digitalRead(button) == 1)
     {
-      Serial.println(digitalRead(button));
-      Serial.println(select);
+      Serial.println("*******************************************************************");
       select++;
       if (select > regimeMAX)
       {
         select = 0;
       }
+      delay(1500); // test
       waitingTime = millis();
-      delay(1000);
     }
     else
     {
-      Serial.print(millis() - waitingTime);
+      Serial.print("Time: ");
+      Serial.print(waiting - (millis() - waitingTime));
       Serial.println("S");
+      delay(1000); // test
     }
-    Serial.print("select ");
+    Serial.print("Select: ");
     Serial.println(select);
-    delay(500);
   }
 }
 
 /**
- * Hiển thị dữ liệu trên màn hình
+ * Hiển thị dữ liệu trên màn hình + thực thi chế độ
  */
 void viewShow()
 {
+  Serial.print("Đang chạy chế độ: ");
   Serial.println(select);
   if (select == 1)
   {
-    digitalWrite(cN1, 0);
-    digitalWrite(cN2, 1);
-    digitalWrite(cN3, 1);
+    // TODO: Add your code here
   }
   else if (select == 2)
   {
-    digitalWrite(cN1, 1);
-    digitalWrite(cN2, 0);
-    digitalWrite(cN3, 1);
+    // TODO: Add your code here
   }
   else if (select == 3)
   {
-    digitalWrite(cN1, 1);
-    digitalWrite(cN2, 1);
-    digitalWrite(cN3, 0);
+    // TODO: Add your code here
   }
   else if (select == 0)
-    digitalWrite(cN1, 1);
-  digitalWrite(cN2, 1);
-  digitalWrite(cN3, 1);
   {
+    // TODO: Add your code here
   }
 }
 
 /**
  * Đọc một byte đơn từ kết nối nối tiếp Bluetooth và đợi cho đến khi có dữ liệu.
- * Nếu đầu ra gỡ lỗi được bật, nó sẽ lặp lại byte tới kết nối nối tiếp USB nhằm mục đích gỡ lỗi.
+ * Nếu đầu ra gỡ lỗi được bật, nó sẽ lặp lại byte tới kết nối nối tiếp USB nhằm
+ * mục đích gỡ lỗi.
  */
 byte ReadOneByte()
 {
@@ -234,7 +221,6 @@ int checkThreshold()
         }   // for loop
 
 #if !DEBUGOUTPUT
-          // *** Add your code here ***
         if (bigPacket)
         {
           if (poorQuality == 0)
@@ -242,8 +228,7 @@ int checkThreshold()
           else
             digitalWrite(LED, LOW);
           Serial.print("Attention: ");
-          Serial.print(attention);
-          Serial.print("\n");
+          Serial.println(attention);
         }
 #endif
         bigPacket = false;
