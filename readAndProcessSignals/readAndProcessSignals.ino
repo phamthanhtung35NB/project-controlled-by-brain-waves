@@ -2,8 +2,8 @@
 
 SoftwareSerial BT(11, 10); // Rx/Tx
 /**
- * commet dòng 104 mở commet dòng 103
- * commet dòng 51 mở commet dòng 50
+ * COMMENT dòng 104 mở COMMENT  dòng 103
+ * COMMENT  dòng 51 mở COMMENT  dòng 50
  */
 #define LED 13
 #define BAUDRATE 57600
