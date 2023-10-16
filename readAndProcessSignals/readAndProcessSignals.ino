@@ -68,20 +68,7 @@ void setup()
 void loop()
 {
   //*******************************************************************
-  int checkHamcheckThreshold = checkThreshold();
-  if (select == 0 && checkHamcheckThreshold >= threshold)
-  {
-    Serial.println("Vào rồi ");
-    // chọn chế độ
-    functionSelection();
-    Serial.println("Húp.................");
-  }
-  else if (select!=0)
-  {
-    viewShow();
-  }
-  Serial.println("_____________");
-  // delay(500); // test
+  checkThreshold();
 }
 
 /**
@@ -93,7 +80,7 @@ void functionSelection()
   while (millis() - waitingTime < waiting)
   {
     //*******************************************************************
-    if (checkThreshold() >= threshold)
+    if (attention >= threshold)
     {
       Serial.println("*******************************************************************");
       select++;
@@ -163,7 +150,7 @@ byte ReadOneByte()
 /**
  * return _ mức độ tập trung
  */
-int checkThreshold()
+void checkThreshold()
 {
   // Tìm kiếm các byte đồng bộ
   if (ReadOneByte() == 170)
@@ -228,7 +215,18 @@ int checkThreshold()
             digitalWrite(LED, LOW);
           Serial.print("Attention: ");
           Serial.println(attention);
-          return attention;
+          if (select == 0 && attention >= threshold)
+          {
+            Serial.println("Vào rồi ");
+            // chọn chế độ
+            functionSelection();
+            Serial.println("Húp.................");
+          }
+          else if (select != 0)
+          {
+            viewShow();
+          }
+          Serial.println("_____________");
         }
 #endif
         bigPacket = false;
@@ -239,5 +237,4 @@ int checkThreshold()
       } // kết thúc nếu khác để kiểm tra
     }   // kết thúc nếu đọc byte 0xaa
   }     // kết thúc nếu đọc byte 0xaa
-  return attention;
 }
