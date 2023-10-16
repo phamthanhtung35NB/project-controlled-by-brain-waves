@@ -68,20 +68,20 @@ void setup()
 void loop()
 {
   //*******************************************************************
-  // if (checkThreshold() >= threshold)
-  if (digitalRead(button) == 1)
+  int checkHamcheckThreshold = checkThreshold();
+  if (select == 0 && checkHamcheckThreshold >= threshold)
   {
     Serial.println("Vào rồi ");
     // chọn chế độ
     functionSelection();
     Serial.println("Húp.................");
   }
-  else
+  else if (select!=0)
   {
     viewShow();
   }
-  Serial.println("_");
-  delay(500); // test
+  Serial.println("_____________");
+  // delay(500); // test
 }
 
 /**
@@ -93,8 +93,7 @@ void functionSelection()
   while (millis() - waitingTime < waiting)
   {
     //*******************************************************************
-    // if (checkThreshold() >= threshold)
-    if (digitalRead(button) == 1)
+    if (checkThreshold() >= threshold)
     {
       Serial.println("*******************************************************************");
       select++;
@@ -229,6 +228,7 @@ int checkThreshold()
             digitalWrite(LED, LOW);
           Serial.print("Attention: ");
           Serial.println(attention);
+          return attention;
         }
 #endif
         bigPacket = false;
